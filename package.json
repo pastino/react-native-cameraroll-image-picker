@@ -3,11 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint ."
+    "build": "tsc"
   },
   "dependencies": {
     "@react-native-community/cameraroll": "^4.1.2",
@@ -17,21 +13,23 @@
     "@babel/core": "^7.17.8",
     "@babel/runtime": "^7.17.8",
     "@react-native-community/eslint-config": "^3.0.1",
-    "@types/react": "^16.9.9",
-    "@types/react-native": "^0.60.21",
+    "@types/node": "7.0.0",
+    "@types/react": "^17.0.43",
+    "@types/react-native": "^0.67.3",
     "babel-jest": "^27.5.1",
     "eslint": "^8.12.0",
     "jest": "^27.5.1",
     "metro-react-native-babel-preset": "^0.69.1",
     "react": "17.0.2",
     "react-native": "0.67.4",
-    "react-test-renderer": "17.0.2"
+    "react-test-renderer": "17.0.2",
+    "typescript": "^4.6.3"
   },
   "jest": {
     "preset": "react-native"
   },
   "description": "camera roll image picker",
-  "main": "./src/index.ts",
+  "main": "./dist/index.d.ts",
   "keywords": [
     "react-native",
     "camera",

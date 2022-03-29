@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Dimensions, FlatList, SafeAreaView, View} from 'react-native';
-import ImageItem from './ImageItem';
+import React, { useEffect, useState } from "react";
+import { Dimensions, FlatList, View } from "react-native";
+import ImageItem from "./ImageItem";
 import CameraRoll, {
   GroupType,
   AssetType,
   PhotoIdentifiersPage,
-} from '@react-native-community/cameraroll';
-import * as T from './types';
+} from "@react-native-community/cameraroll";
+import * as T from "./types";
 
 // callback: 이미지 선택 시 콜백 기능. (필수!). 선택한 이미지 배열과 현재 선택된 이미지를 반환합니다.
 // initialNumToRender: 첫 번째 렌더 패스에서 렌더링할 행 수를 지정합니다. (기본값: 5)
@@ -44,7 +44,7 @@ interface Props {
 
 export const getAlbums = async () => {
   const albumsData = await CameraRoll.getAlbums({
-    assetType: 'Photos',
+    assetType: "Photos",
   });
   const newAlbums: any = [];
   for (let i = 0; i < albumsData.length; i++) {
@@ -55,15 +55,15 @@ export const getAlbums = async () => {
     newObj.count = d.count;
     newAlbums.push(newObj);
   }
-  return [{label: 'All', value: 'All'}, ...newAlbums];
+  return [{ label: "All", value: "All" }, ...newAlbums];
 };
-const {width} = Dimensions.get('screen');
+const { width } = Dimensions.get("screen");
 
 const ImagePicker = ({
   callback,
   initialNumToRender = 20,
-  groupTypes = 'All',
-  assetType = 'Photos',
+  groupTypes = "All",
+  assetType = "Photos",
   currentAlbum,
   selected,
   // selectSingleItem,
@@ -71,7 +71,7 @@ const ImagePicker = ({
   imagesPerRow = 3,
   imageMargin = 1,
   containerWidth = width,
-  backgroundColor = 'white',
+  backgroundColor = "white",
   emptyText,
   emptyTextStyle,
   loader,
@@ -83,11 +83,11 @@ const ImagePicker = ({
 
   const [photos, setPhotos] = useState<T.Photo[]>([]);
   const [galleryInfo, setGalleryInfo] = useState<
-    PhotoIdentifiersPage['page_info']
+    PhotoIdentifiersPage["page_info"]
   >({
-    end_cursor: '',
+    end_cursor: "",
     has_next_page: false,
-    start_cursor: '',
+    start_cursor: "",
   });
 
   const [selectedPhotos, setSelectedPhotos] = useState<T.Photo[]>([]);
@@ -102,7 +102,7 @@ const ImagePicker = ({
   const handlePhoto = {
     get: async function () {
       const newPhotoData: PhotoIdentifiersPage = await CameraRoll.getPhotos(
-        options,
+        options
       );
       const newPhotos = this.makePhotoBudle(newPhotoData);
       this.set(newPhotos);
@@ -111,7 +111,7 @@ const ImagePicker = ({
     set: async (photos: T.Photo[]) => {
       setPhotos(photos);
     },
-    setGalleryInfo: async (pageInfo: PhotoIdentifiersPage['page_info']) => {
+    setGalleryInfo: async (pageInfo: PhotoIdentifiersPage["page_info"]) => {
       setGalleryInfo(pageInfo);
     },
     /**
@@ -125,7 +125,7 @@ const ImagePicker = ({
         const edge = newPhotoData.edges[i];
         const newImageObj = {
           name: `image${i}.jpg`,
-          type: 'image/jpeg',
+          type: "image/jpeg",
           uri: edge.node.image.uri,
         };
         newPhotos.push(newImageObj);
@@ -136,7 +136,7 @@ const ImagePicker = ({
 
   const handleSelect = (item: T.Photo, targetIndex: number) => {
     if (selectedPhotos.length === MAX_SELECT_PHOTO_LENGTH) {
-      console.log('더 이상 이미지를 선택할 수 없습니다.');
+      console.log("더 이상 이미지를 선택할 수 없습니다.");
       return;
     }
     callback && callback(item, targetIndex);
@@ -146,7 +146,13 @@ const ImagePicker = ({
     handlePhoto.get();
   }, [currentAlbum]);
 
-  const handleRenderItem = ({item, index}: {item: T.Photo; index: number}) => {
+  const handleRenderItem = ({
+    item,
+    index,
+  }: {
+    item: T.Photo;
+    index: number;
+  }) => {
     const selectedIndex =
       selected?.findIndex((photo: any) => photo.uri === item.uri) || -1;
     let isChecked = false;
@@ -171,12 +177,12 @@ const ImagePicker = ({
   };
 
   return (
-    <View style={{backgroundColor}}>
+    <View style={{ backgroundColor }}>
       <FlatList
-        style={{width: containerWidth}}
+        style={{ width: containerWidth }}
         data={photos}
         renderItem={handleRenderItem}
-        keyExtractor={item => item.uri}
+        keyExtractor={(item: T.Photo) => item.uri}
         numColumns={imagesPerRow}
         onEndReachedThreshold={0.8}
       />

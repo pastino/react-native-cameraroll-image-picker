@@ -1,7 +1,6 @@
 {
   "name": "react-native-cameraroll-image-picker",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "build": "tsc"
   },
@@ -36,5 +35,10 @@
     "roll"
   ],
   "author": "pastino <joon500006@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/pastino/react-native-cameraroll-image-picker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pastino/react-native-cameraroll-image-picker"
+  }
 }

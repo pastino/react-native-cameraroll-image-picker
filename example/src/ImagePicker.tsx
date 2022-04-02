@@ -1,37 +1,27 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions, FlatList, SafeAreaView, View} from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  PermissionsAndroid,
+  Platform,
+  View,
+} from 'react-native';
 import ImageItem from './ImageItem';
 import CameraRoll, {
   GroupType,
   AssetType,
   PhotoIdentifiersPage,
+  Album,
 } from '@react-native-community/cameraroll';
 import * as T from './types';
 
-// callback: 이미지 선택 시 콜백 기능. (필수!). 선택한 이미지 배열과 현재 선택된 이미지를 반환합니다.
-// initialNumToRender: 첫 번째 렌더 패스에서 렌더링할 행 수를 지정합니다. (기본값: 5)
-// groupTypes: 사진을 가져올 그룹으로 '앨범', '전체', '이벤트', '얼굴', '라이브러리', 'PhotoStream' 및 'SavedPhotos' 중 하나입니다. (기본값: 저장된 사진)
-// assetType: 자산 유형으로 '사진', '동영상' 또는 '전체' 중 하나입니다. (기본값: 사진)
-// selected: 이미 선택된 이미지 배열입니다. (기본: [])
-// selectSingleItem: 한 번에 하나의 이미지만 선택하는 부울. (기본값: false)
-// maximum: 선택한 이미지의 최대 개수입니다. (기본값: 15)
-// imagesPerRow: 행당 이미지 수입니다. (기본값: 3)
-// imageMargin: 한 이미지의 여백 크기입니다. (기본값: 5)
-// containerWidth: 카메라 롤 피커 컨테이너의 너비입니다. (기본값: 장치 너비)
-// selectedMarker: 사용자가 선택한 이미지 마커 구성요소. (기본값: 체크 표시).
-// backgroundColor: 배경색을 설정합니다. (기본값: 흰색).
-// emptyText: 사진이 없을 때 목록 대신 표시할 텍스트입니다. (기본값: '사진 없음.')
-// emptyTextStyle: 에 적용할 스타일 emptyText입니다. (기본값: textAlign: 'center')
-// loader: 로더 구성 요소 노드입니다. (기본값: <ActivityIndicator />)
-
 interface Props {
-  callback?: (item: T.Photo, index: number) => void;
+  ref?: any;
   initialNumToRender?: number;
   groupTypes?: GroupType;
   assetType?: AssetType;
-  currentAlbum?: any;
-  selected?: T.Photo[];
-  // selectSingleItem?: boolean;
+  initAlbum?: T.Album;
+  selected: T.Photo[];
   maximum?: number;
   imagesPerRow?: number;
   imageMargin?: number;
@@ -40,6 +30,11 @@ interface Props {
   emptyText?: any;
   emptyTextStyle?: any;
   loader?: any;
+  albums: T.Album[];
+  onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
+  onMaxSelectedEvent?: () => void;
+  getAlbumsData?: (albums: T.Album[]) => void;
+  onChangeAlbumEvent?: (album: T.Album) => void;
 }
 
 export const getAlbums = async () => {
@@ -60,18 +55,22 @@ export const getAlbums = async () => {
 const {width} = Dimensions.get('screen');
 
 const ImagePicker = ({
-  callback,
-  initialNumToRender = 20,
-  groupTypes = 'All',
+  ref,
+  initialNumToRender = 50,
+  groupTypes = 'Album',
   assetType = 'Photos',
-  currentAlbum,
+  initAlbum = {label: 'All', value: 'All', count: 0},
   selected,
-  // selectSingleItem,
   maximum = 15,
   imagesPerRow = 3,
   imageMargin = 1,
   containerWidth = width,
   backgroundColor = 'white',
+  onImagePress,
+  onMaxSelectedEvent,
+  getAlbumsData,
+  onChangeAlbumEvent,
+  albums,
   emptyText,
   emptyTextStyle,
   loader,
@@ -81,41 +80,73 @@ const ImagePicker = ({
   const IMAGE_SIZE =
     containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
 
+  const [currentAlbum, setCurrentAlbum] = useState(initAlbum);
   const [photos, setPhotos] = useState<T.Photo[]>([]);
   const [galleryInfo, setGalleryInfo] = useState<
     PhotoIdentifiersPage['page_info']
   >({
     end_cursor: '',
     has_next_page: false,
-    start_cursor: '',
   });
 
-  const [selectedPhotos, setSelectedPhotos] = useState<T.Photo[]>([]);
-
-  const options = {
-    first: PHOTO_LENGTH,
-    assetType,
-    groupName: currentAlbum,
-    groupTypes,
-  };
+  const options =
+    currentAlbum?.label === 'All'
+      ? {
+          first: PHOTO_LENGTH,
+          assetType,
+          groupTypes,
+        }
+      : {
+          first: PHOTO_LENGTH,
+          assetType,
+          groupName: currentAlbum?.label,
+          groupTypes,
+        };
 
   const handlePhoto = {
-    get: async function () {
-      const newPhotoData: PhotoIdentifiersPage = await CameraRoll.getPhotos(
-        options,
-      );
+    /**
+     * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
+     */
+    get: async function (isDuplicateBug = false): Promise<void> {
+      const newPhotoData: PhotoIdentifiersPage = await CameraRoll.getPhotos({
+        ...options,
+        first: isDuplicateBug ? 5000 : options?.first,
+      });
       const newPhotos = this.makePhotoBudle(newPhotoData);
       this.set(newPhotos);
       this.setGalleryInfo(newPhotoData.page_info);
     },
-    set: async (photos: T.Photo[]) => {
+    getMore: async function (): Promise<void> {
+      if (!galleryInfo.has_next_page || !galleryInfo?.end_cursor) return;
+      const newPhotoData = await CameraRoll.getPhotos({
+        after: galleryInfo.end_cursor,
+        ...options,
+      });
+      const newPhotos = this.makePhotoBudle(newPhotoData);
+      const isDuplicate = await this.bypassDuplicateImageBug(newPhotos);
+      if (isDuplicate) return;
+      this.set([...photos, ...newPhotos]);
+      this.setGalleryInfo(newPhotoData.page_info);
+    },
+    /**
+     * Check the bug where pagination is not working on a specific device
+     */
+    bypassDuplicateImageBug: async function (newPhotos: T.Photo[]) {
+      if (photos.length === 0) return false;
+      const uriArr = photos.map(item => item.uri);
+      const isDuplicate = uriArr.includes(newPhotos[0].uri);
+      if (!isDuplicate) return false;
+      await this.get(true);
+      return true;
+    },
+    set: (photos: T.Photo[]): void => {
       setPhotos(photos);
     },
-    setGalleryInfo: async (pageInfo: PhotoIdentifiersPage['page_info']) => {
+    setGalleryInfo: (pageInfo: PhotoIdentifiersPage['page_info']): void => {
       setGalleryInfo(pageInfo);
     },
     /**
-     * Returns the sum of a and b
+     * Returns Photo Array
      * @param newPhotoData Image bundle obtained by CameraRoll's getPhotos method [Array]
      * @returns Array{name, type, uri}
      */
@@ -134,23 +165,93 @@ const ImagePicker = ({
     },
   };
 
-  const handleSelect = (item: T.Photo, targetIndex: number) => {
-    if (selectedPhotos.length === MAX_SELECT_PHOTO_LENGTH) {
-      console.log('더 이상 이미지를 선택할 수 없습니다.');
+  const handleAlbum = {
+    get: async function () {
+      const albumsData = await CameraRoll.getAlbums({
+        assetType: 'Photos',
+      });
+      const newAlbums = await this.makeAlbumBudle(albumsData);
+      getAlbumsData && getAlbumsData([...albums, ...newAlbums]);
+    },
+    setCurrentAlbum: (album: T.Album) => {
+      setCurrentAlbum(album);
+    },
+    makeAlbumBudle: (albumsData: Album[]): T.Album[] => {
+      const newAlbums: T.Album[] = [];
+      for (let i = 0; i < albumsData.length; i++) {
+        const newObj = {label: '', value: '', count: 0};
+        const d = albumsData[i];
+        newObj.label = d.title;
+        newObj.value = d.title;
+        newObj.count = d.count;
+        newAlbums.push(newObj);
+      }
+      return newAlbums;
+    },
+  };
+
+  const handleSelect = ({
+    photo,
+    order,
+    isChecked,
+  }: {
+    photo: T.Photo;
+    order: number;
+    isChecked: boolean;
+  }) => {
+    if (selected?.length === MAX_SELECT_PHOTO_LENGTH) {
+      onMaxSelectedEvent && onMaxSelectedEvent();
       return;
     }
-    callback && callback(item, targetIndex);
+    onImagePress && onImagePress(photo, order, isChecked);
+  };
+
+  const checkReadStoragePermission = async () => {
+    const isGranted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+    );
+    if (!isGranted)
+      console.warn("no atuthentification 'READ_EXTERNAL_STORAGE'");
+  };
+
+  const checkWriteStoragePermission = async () => {
+    const isGranted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    );
+    if (!isGranted)
+      console.warn("no atuthentification 'WRITE_EXTERNAL_STORAGE'");
+  };
+
+  const registRef = () => {
+    if (ref)
+      ref.current = {
+        getAlbum: handleAlbum.get(),
+        ...ref.current,
+      };
   };
 
   useEffect(() => {
+    if (Platform.OS === 'android') {
+      checkReadStoragePermission();
+      checkWriteStoragePermission();
+    }
+    handleAlbum.get();
+    registRef();
+  }, []);
+
+  useEffect(() => {
     handlePhoto.get();
+    onChangeAlbumEvent && onChangeAlbumEvent(currentAlbum);
   }, [currentAlbum]);
 
   const handleRenderItem = ({item, index}: {item: T.Photo; index: number}) => {
-    const selectedIndex =
-      selected?.findIndex((photo: any) => photo.uri === item.uri) || -1;
-    let isChecked = false;
-    if (selectedIndex !== -1) isChecked = true;
+    const selectedIndex = selected?.findIndex(
+      (photo: any) => photo.uri === item.uri,
+    );
+
+    const isChecked = selected
+      ?.map((photo: T.Photo) => photo.uri)
+      .includes(item.uri);
 
     const isMarginRight = (index + 1) % imagesPerRow !== 0;
 
@@ -159,7 +260,9 @@ const ImagePicker = ({
         item={item}
         isChecked={isChecked}
         selectedIndex={selectedIndex}
-        handleSelect={() => handleSelect(item, selectedIndex)}
+        handleSelect={() =>
+          handleSelect({photo: item, order: selectedIndex, isChecked})
+        }
         styles={{
           width: IMAGE_SIZE,
           height: IMAGE_SIZE,
@@ -178,6 +281,7 @@ const ImagePicker = ({
         renderItem={handleRenderItem}
         keyExtractor={item => item.uri}
         numColumns={imagesPerRow}
+        onEndReached={() => handlePhoto.getMore()}
         onEndReachedThreshold={0.8}
       />
     </View>

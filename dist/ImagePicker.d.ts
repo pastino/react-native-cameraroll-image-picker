@@ -7,7 +7,6 @@ interface Props {
     groupTypes?: GroupType;
     assetType?: AssetType;
     initAlbum?: T.Album;
-    selected: T.Photo[];
     maximum?: number;
     imagesPerRow?: number;
     imageMargin?: number;
@@ -24,5 +23,5 @@ interface Props {
     onChangeAlbumEvent?: (album: string) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;
-export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, initAlbum, selected, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
+export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
 export {};

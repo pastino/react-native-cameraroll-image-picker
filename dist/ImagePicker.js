@@ -19,10 +19,11 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", initAlbum = { label: "All", value: "All", count: 0 }, selected, maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
+    const [selected, setSelected] = useState([]);
     const [photos, setPhotos] = useState([]);
     const [galleryInfo, setGalleryInfo] = useState({
         end_cursor: "",
@@ -127,9 +128,18 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
         },
     };
     const handleSelect = ({ photo, order, isChecked, }) => {
-        if (selected?.length === MAX_SELECT_PHOTO_LENGTH) {
-            onMaxSelectedEvent && onMaxSelectedEvent();
-            return;
+        if (isChecked) {
+            const newSelected = JSON.parse(JSON.stringify(selected));
+            const findIndex = selected?.findIndex((photo) => photo.uri === photo.uri);
+            newSelected.splice(findIndex, 1);
+            setSelected(newSelected);
+        }
+        else {
+            if (selected?.length > MAX_SELECT_PHOTO_LENGTH) {
+                onMaxSelectedEvent && onMaxSelectedEvent();
+                return;
+            }
+            setSelected((prev) => [...prev, photo]);
         }
         onImagePress && onImagePress(photo, order, isChecked);
     };

@@ -128,19 +128,19 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
         },
     };
     const handleSelect = ({ photo, order, isChecked, }) => {
-        if (isChecked) {
-            const newSelected = JSON.parse(JSON.stringify(selected));
-            const findIndex = selected?.findIndex((photo) => photo.uri === photo.uri);
-            newSelected.splice(findIndex, 1);
-            setSelected(newSelected);
+        const copiedPhotos = selected.slice();
+        if (order === -1) {
+            if (selected.length === MAX_SELECT_PHOTO_LENGTH) {
+                onMaxSelectedEvent && onMaxSelectedEvent();
+            }
+            else {
+                copiedPhotos.push(photo);
+            }
         }
         else {
-            if (selected?.length > MAX_SELECT_PHOTO_LENGTH) {
-                onMaxSelectedEvent && onMaxSelectedEvent();
-                return;
-            }
-            setSelected((prev) => [...prev, photo]);
+            copiedPhotos.splice(order, 1);
         }
+        setSelected(copiedPhotos);
         onImagePress && onImagePress(photo, order, isChecked);
     };
     const checkReadStoragePermission = async () => {
@@ -172,11 +172,11 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
         onChangeAlbumEvent && onChangeAlbumEvent(album);
     }, [album]);
     const handleRenderItem = ({ item, index, }) => {
-        const selectedIndex = selected?.findIndex((photo) => photo.uri === item.uri);
-        const isChecked = selected
-            ?.map((photo) => photo.uri)
-            .includes(item.uri);
         const isMarginRight = (index + 1) % imagesPerRow !== 0;
+        const selectedIndex = selected.findIndex((photo) => photo.uri === item.uri);
+        let isChecked = false;
+        if (selectedIndex !== -1)
+            isChecked = true;
         return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => handleSelect({ photo: item, order: selectedIndex, isChecked }), styles: {
                 width: IMAGE_SIZE,
                 height: IMAGE_SIZE,

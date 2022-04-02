@@ -196,20 +196,17 @@ export const ImagePicker = ({
     order: number;
     isChecked: boolean;
   }) => {
-    if (isChecked) {
-      const newSelected = JSON.parse(JSON.stringify(selected));
-      const findIndex = selected?.findIndex(
-        (photo: any) => photo.uri === photo.uri
-      );
-      newSelected.splice(findIndex, 1);
-      setSelected(newSelected);
-    } else {
-      if (selected?.length > MAX_SELECT_PHOTO_LENGTH) {
+    const copiedPhotos = selected.slice();
+    if (order === -1) {
+      if (selected.length === MAX_SELECT_PHOTO_LENGTH) {
         onMaxSelectedEvent && onMaxSelectedEvent();
-        return;
+      } else {
+        copiedPhotos.push(photo);
       }
-      setSelected((prev: any) => [...prev, photo]);
+    } else {
+      copiedPhotos.splice(order, 1);
     }
+    setSelected(copiedPhotos);
     onImagePress && onImagePress(photo, order, isChecked);
   };
 
@@ -257,15 +254,11 @@ export const ImagePicker = ({
     item: T.Photo;
     index: number;
   }) => {
-    const selectedIndex = selected?.findIndex(
-      (photo: any) => photo.uri === item.uri
-    );
-
-    const isChecked = selected
-      ?.map((photo: T.Photo) => photo.uri)
-      .includes(item.uri);
-
     const isMarginRight = (index + 1) % imagesPerRow !== 0;
+
+    const selectedIndex = selected.findIndex((photo) => photo.uri === item.uri);
+    let isChecked = false;
+    if (selectedIndex !== -1) isChecked = true;
 
     return (
       <ImageItem

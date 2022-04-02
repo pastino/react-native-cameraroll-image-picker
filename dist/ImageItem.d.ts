@@ -1,5 +1,5 @@
 /// <reference types="react" />
-import * as T from './types';
+import * as T from "./types";
 interface Props {
     handleSelect: () => void;
     item: T.Photo;

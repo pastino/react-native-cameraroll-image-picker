@@ -1,6 +1,6 @@
 {
   "name": "react-native-cameraroll-image-picker",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,8 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-community/cameraroll": "^4.1.2",
-    "fbjs": "^3.0.4"
+    "@react-native-community/cameraroll": "^4.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
@@ -21,6 +20,7 @@
     "@types/react-native": "^0.60.21",
     "babel-jest": "^27.5.1",
     "eslint": "^8.12.0",
+    "fbjs": "^3.0.4",
     "jest": "^27.5.1",
     "metro-react-native-babel-preset": "^0.69.1",
     "react": "17.0.2",

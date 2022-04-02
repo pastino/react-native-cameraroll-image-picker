@@ -2,12 +2,12 @@
 import { GroupType, AssetType } from "@react-native-community/cameraroll";
 import * as T from "./types";
 interface Props {
-    callback?: (item: T.Photo, index: number) => void;
+    ref?: any;
     initialNumToRender?: number;
     groupTypes?: GroupType;
     assetType?: AssetType;
-    currentAlbum?: any;
-    selected?: T.Photo[];
+    initAlbum?: T.Album;
+    selected: T.Photo[];
     maximum?: number;
     imagesPerRow?: number;
     imageMargin?: number;
@@ -16,7 +16,12 @@ interface Props {
     emptyText?: any;
     emptyTextStyle?: any;
     loader?: any;
+    albums?: T.Album[];
+    onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
+    onMaxSelectedEvent?: () => void;
+    getAlbumsData?: (albums: T.Album[]) => void;
+    onChangeAlbumEvent?: (album: T.Album) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;
-declare const ImagePicker: ({ callback, initialNumToRender, groupTypes, assetType, currentAlbum, selected, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
-export default ImagePicker;
+export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, initAlbum, selected, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
+export {};

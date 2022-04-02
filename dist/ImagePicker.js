@@ -19,17 +19,16 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", initAlbum = { label: "All", value: "All", count: 0 }, selected, maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, albums = [], emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", initAlbum = { label: "All", value: "All", count: 0 }, selected, maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
-    const [currentAlbum, setCurrentAlbum] = useState(initAlbum);
     const [photos, setPhotos] = useState([]);
     const [galleryInfo, setGalleryInfo] = useState({
         end_cursor: "",
         has_next_page: false,
     });
-    const options = currentAlbum?.label === "All"
+    const options = album === "All"
         ? {
             first: PHOTO_LENGTH,
             assetType,
@@ -38,7 +37,7 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
         : {
             first: PHOTO_LENGTH,
             assetType,
-            groupName: currentAlbum?.label,
+            groupName: album,
             groupTypes,
         };
     const handlePhoto = {
@@ -114,9 +113,6 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
             const newAlbums = await this.makeAlbumBudle(albumsData);
             getAlbumsData && getAlbumsData([...albums, ...newAlbums]);
         },
-        setCurrentAlbum: (album) => {
-            setCurrentAlbum(album);
-        },
         makeAlbumBudle: (albumsData) => {
             const newAlbums = [];
             for (let i = 0; i < albumsData.length; i++) {
@@ -159,21 +155,12 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
             checkReadStoragePermission();
             checkWriteStoragePermission();
         }
-        handleAlbum.get();
-        registRef();
-    }, []);
-    useEffect(() => {
-        if (Platform.OS === "android") {
-            checkReadStoragePermission();
-            checkWriteStoragePermission();
-        }
-        handleAlbum.get();
         registRef();
     }, []);
     useEffect(() => {
         handlePhoto.get();
-        onChangeAlbumEvent && onChangeAlbumEvent(currentAlbum);
-    }, [currentAlbum]);
+        onChangeAlbumEvent && onChangeAlbumEvent(album);
+    }, [album]);
     const handleRenderItem = ({ item, index, }) => {
         const selectedIndex = selected?.findIndex((photo) => photo.uri === item.uri);
         const isChecked = selected

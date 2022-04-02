@@ -16,12 +16,13 @@ interface Props {
     emptyText?: any;
     emptyTextStyle?: any;
     loader?: any;
+    album?: string;
     albums?: T.Album[];
     onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
     onMaxSelectedEvent?: () => void;
     getAlbumsData?: (albums: T.Album[]) => void;
-    onChangeAlbumEvent?: (album: T.Album) => void;
+    onChangeAlbumEvent?: (album: string) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;
-export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, initAlbum, selected, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
+export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, initAlbum, selected, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
 export {};

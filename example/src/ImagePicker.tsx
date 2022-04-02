@@ -30,11 +30,12 @@ interface Props {
   emptyText?: any;
   emptyTextStyle?: any;
   loader?: any;
+  album?: string;
   albums?: T.Album[];
   onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
   onMaxSelectedEvent?: () => void;
   getAlbumsData?: (albums: T.Album[]) => void;
-  onChangeAlbumEvent?: (album: T.Album) => void;
+  onChangeAlbumEvent?: (album: string) => void;
 }
 
 export const getAlbums = async () => {
@@ -70,6 +71,7 @@ export const ImagePicker = ({
   onMaxSelectedEvent,
   getAlbumsData,
   onChangeAlbumEvent,
+  album = 'All',
   albums = [],
   emptyText,
   emptyTextStyle,
@@ -80,7 +82,6 @@ export const ImagePicker = ({
   const IMAGE_SIZE =
     containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
 
-  const [currentAlbum, setCurrentAlbum] = useState(initAlbum);
   const [photos, setPhotos] = useState<T.Photo[]>([]);
   const [galleryInfo, setGalleryInfo] = useState<
     PhotoIdentifiersPage['page_info']
@@ -90,7 +91,7 @@ export const ImagePicker = ({
   });
 
   const options =
-    currentAlbum?.label === 'All'
+    album === 'All'
       ? {
           first: PHOTO_LENGTH,
           assetType,
@@ -99,7 +100,7 @@ export const ImagePicker = ({
       : {
           first: PHOTO_LENGTH,
           assetType,
-          groupName: currentAlbum?.label,
+          groupName: album,
           groupTypes,
         };
 
@@ -173,9 +174,7 @@ export const ImagePicker = ({
       const newAlbums = await this.makeAlbumBudle(albumsData);
       getAlbumsData && getAlbumsData([...albums, ...newAlbums]);
     },
-    setCurrentAlbum: (album: T.Album) => {
-      setCurrentAlbum(album);
-    },
+
     makeAlbumBudle: (albumsData: Album[]): T.Album[] => {
       const newAlbums: T.Album[] = [];
       for (let i = 0; i < albumsData.length; i++) {
@@ -235,23 +234,13 @@ export const ImagePicker = ({
       checkReadStoragePermission();
       checkWriteStoragePermission();
     }
-    handleAlbum.get();
-    registRef();
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      checkReadStoragePermission();
-      checkWriteStoragePermission();
-    }
-    handleAlbum.get();
     registRef();
   }, []);
 
   useEffect(() => {
     handlePhoto.get();
-    onChangeAlbumEvent && onChangeAlbumEvent(currentAlbum);
-  }, [currentAlbum]);
+    onChangeAlbumEvent && onChangeAlbumEvent(album);
+  }, [album]);
 
   const handleRenderItem = ({item, index}: {item: T.Photo; index: number}) => {
     const selectedIndex = selected?.findIndex(

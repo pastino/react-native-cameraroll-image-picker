@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
-import * as T from './types';
+import React, { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import * as T from "./types";
 
 interface Props {
   handleSelect: () => void;
@@ -30,12 +30,13 @@ const ImageItem = ({
   return (
     <TouchableOpacity
       activeOpacity={1}
-      style={{position: 'relative'}}
-      onPress={handleSelect}>
+      style={{ position: "relative" }}
+      onPress={handleSelect}
+    >
       <Image
         style={styles}
         onError={() => setError(true)}
-        source={{uri: item.uri}}
+        source={{ uri: item.uri }}
       />
       {isChecked ? (
         <View
@@ -43,14 +44,15 @@ const ImageItem = ({
             width: 25,
             height: 25,
             borderRadius: 15,
-            backgroundColor: '#FFD54F',
-            position: 'absolute',
+            backgroundColor: "#FFD54F",
+            position: "absolute",
             top: 5,
             left: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{color: '#2D3239', fontWeight: '700'}}>
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "#2D3239", fontWeight: "700" }}>
             {selectedIndex + 1}
           </Text>
         </View>
@@ -60,13 +62,13 @@ const ImageItem = ({
             width: 25,
             height: 25,
             borderRadius: 15,
-            backgroundColor: 'black',
+            backgroundColor: "black",
             opacity: 0.5,
-            position: 'absolute',
+            position: "absolute",
             top: 5,
             left: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
           }}
         />
       )}

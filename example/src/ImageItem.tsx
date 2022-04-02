@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Dimensions, Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import * as T from './types';
 
 interface Props {

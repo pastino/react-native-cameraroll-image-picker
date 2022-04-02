@@ -21,7 +21,6 @@ interface Props {
   groupTypes?: GroupType;
   assetType?: AssetType;
   initAlbum?: T.Album;
-  selected: T.Photo[];
   maximum?: number;
   imagesPerRow?: number;
   imageMargin?: number;
@@ -60,8 +59,6 @@ export const ImagePicker = ({
   initialNumToRender = 50,
   groupTypes = "Album",
   assetType = "Photos",
-  initAlbum = { label: "All", value: "All", count: 0 },
-  selected,
   maximum = 15,
   imagesPerRow = 3,
   imageMargin = 1,
@@ -82,6 +79,7 @@ export const ImagePicker = ({
   const IMAGE_SIZE =
     containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
 
+  const [selected, setSelected] = useState<T.Photo[]>([]);
   const [photos, setPhotos] = useState<T.Photo[]>([]);
   const [galleryInfo, setGalleryInfo] = useState<
     PhotoIdentifiersPage["page_info"]
@@ -198,9 +196,19 @@ export const ImagePicker = ({
     order: number;
     isChecked: boolean;
   }) => {
-    if (selected?.length === MAX_SELECT_PHOTO_LENGTH) {
-      onMaxSelectedEvent && onMaxSelectedEvent();
-      return;
+    if (isChecked) {
+      const newSelected = JSON.parse(JSON.stringify(selected));
+      const findIndex = selected?.findIndex(
+        (photo: any) => photo.uri === photo.uri
+      );
+      newSelected.splice(findIndex, 1);
+      setSelected(newSelected);
+    } else {
+      if (selected?.length > MAX_SELECT_PHOTO_LENGTH) {
+        onMaxSelectedEvent && onMaxSelectedEvent();
+        return;
+      }
+      setSelected((prev: any) => [...prev, photo]);
     }
     onImagePress && onImagePress(photo, order, isChecked);
   };

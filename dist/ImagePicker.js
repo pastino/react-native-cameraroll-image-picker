@@ -19,7 +19,7 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
@@ -141,7 +141,13 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album"
             copiedPhotos.splice(order, 1);
         }
         setSelected(copiedPhotos);
-        onImagePress && onImagePress(photo, order, isChecked);
+        onChangePhotosEvent &&
+            onChangePhotosEvent({
+                selected: copiedPhotos,
+                item: photo,
+                index: order,
+                isChecked: isChecked,
+            });
     };
     const checkReadStoragePermission = async () => {
         const isGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);

@@ -31,7 +31,12 @@ interface Props {
   loader?: any;
   album?: string;
   albums?: T.Album[];
-  onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
+  onChangePhotosEvent?: (e: {
+    selected: T.Photo[];
+    item: T.Photo;
+    index: number;
+    isChecked: boolean;
+  }) => void;
   onMaxSelectedEvent?: () => void;
   getAlbumsData?: (albums: T.Album[]) => void;
   onChangeAlbumEvent?: (album: string) => void;
@@ -64,7 +69,7 @@ export const ImagePicker = ({
   imageMargin = 1,
   containerWidth = width,
   backgroundColor = 'white',
-  onImagePress,
+  onChangePhotosEvent,
   onMaxSelectedEvent,
   getAlbumsData,
   onChangeAlbumEvent,
@@ -196,7 +201,7 @@ export const ImagePicker = ({
     order: number;
     isChecked: boolean;
   }) => {
-    const copiedPhotos = selected.slice();
+    const copiedPhotos: T.Photo[] = selected.slice();
     if (order === -1) {
       if (selected.length === MAX_SELECT_PHOTO_LENGTH) {
         onMaxSelectedEvent && onMaxSelectedEvent();
@@ -207,7 +212,14 @@ export const ImagePicker = ({
       copiedPhotos.splice(order, 1);
     }
     setSelected(copiedPhotos);
-    onImagePress && onImagePress(photo, order, isChecked);
+
+    onChangePhotosEvent &&
+      onChangePhotosEvent({
+        selected: copiedPhotos,
+        item: photo,
+        index: order,
+        isChecked: isChecked,
+      });
   };
 
   const checkReadStoragePermission = async () => {

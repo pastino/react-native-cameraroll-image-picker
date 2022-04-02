@@ -30,7 +30,7 @@ interface Props {
   emptyText?: any;
   emptyTextStyle?: any;
   loader?: any;
-  albums: T.Album[];
+  albums?: T.Album[];
   onImagePress?: (item: T.Photo, index: number, isCheck: boolean) => void;
   onMaxSelectedEvent?: () => void;
   getAlbumsData?: (albums: T.Album[]) => void;
@@ -54,7 +54,7 @@ export const getAlbums = async () => {
 };
 const { width } = Dimensions.get("screen");
 
-const ImagePicker = ({
+export const ImagePicker = ({
   ref,
   initialNumToRender = 50,
   groupTypes = "Album",
@@ -70,7 +70,7 @@ const ImagePicker = ({
   onMaxSelectedEvent,
   getAlbumsData,
   onChangeAlbumEvent,
-  albums,
+  albums = [],
   emptyText,
   emptyTextStyle,
   loader,
@@ -240,6 +240,15 @@ const ImagePicker = ({
   }, []);
 
   useEffect(() => {
+    if (Platform.OS === "android") {
+      checkReadStoragePermission();
+      checkWriteStoragePermission();
+    }
+    handleAlbum.get();
+    registRef();
+  }, []);
+
+  useEffect(() => {
     handlePhoto.get();
     onChangeAlbumEvent && onChangeAlbumEvent(currentAlbum);
   }, [currentAlbum]);
@@ -293,5 +302,3 @@ const ImagePicker = ({
     </View>
   );
 };
-
-export default ImagePicker;

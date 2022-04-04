@@ -1,3 +1,2 @@
-import {ImagePicker} from './ImagePicker';
-export {getAlbums} from './ImagePicker';
-export default ImagePicker;
+import ImagePickerView from './ImagePickerView';
+export default ImagePickerView;

@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { GroupType, AssetType } from "@react-native-community/cameraroll";
-import * as T from "./types";
+import { GroupType, AssetType } from '@react-native-community/cameraroll';
+import * as T from './types';
 interface Props {
     ref?: any;
     initialNumToRender?: number;

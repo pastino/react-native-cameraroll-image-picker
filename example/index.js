@@ -3,7 +3,7 @@
  */
 
 import {AppRegistry} from 'react-native';
-import ImagePicker from './src';
+import ImagePickerView from './src';
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => ImagePicker);
+AppRegistry.registerComponent(appName, () => ImagePickerView);

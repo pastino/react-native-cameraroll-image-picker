@@ -5546,6 +5546,13 @@ react-is@^16.13.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-cameraroll-image-picker@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-cameraroll-image-picker/-/react-native-cameraroll-image-picker-0.0.9.tgz#c9a9c69ba3c3758479017454da29bf807e93ddfd"
+  integrity sha512-uGSJtMVXNg3QlqIGeuc/K8xA40Uu8ue0J9scUQci/iOcNYN2n5w1py/Gs23QykiLSPjQQi1dplDex6pqbzISTw==
+  dependencies:
+    "@react-native-community/cameraroll" "^4.1.2"
+
 react-native-codegen@^0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.0.8.tgz#b7796a54074139d956fff2862cf1285db43c891b"

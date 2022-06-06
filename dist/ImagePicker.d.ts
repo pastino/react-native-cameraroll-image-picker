@@ -1,6 +1,6 @@
 /// <reference types="react" />
-import { GroupType, AssetType } from '@react-native-community/cameraroll';
-import * as T from './types';
+import { GroupType, AssetType } from "@react-native-community/cameraroll";
+import * as T from "./types";
 interface Props {
     ref?: any;
     initialNumToRender?: number;
@@ -17,6 +17,7 @@ interface Props {
     loader?: any;
     album?: string;
     albums?: T.Album[];
+    isMultiSelect?: boolean;
     onChangePhotosEvent?: (e: {
         selected: T.Photo[];
         item: T.Photo;
@@ -28,5 +29,5 @@ interface Props {
     onChangeAlbumEvent?: (album: string) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;
-export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
+export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, isMultiSelect, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
 export {};

@@ -7,6 +7,7 @@ interface Props {
   item: T.Photo;
   isChecked: boolean;
   selectedIndex: number;
+  isMultiSelect: boolean;
   styles?: {};
 }
 
@@ -16,6 +17,7 @@ interface Props {
  * @param item photo item
  * @param isChecked
  * @param selectedIndex selected image order
+ * @param isMultiSelect
  * @param styles photo styles
  */
 const ImageItem = ({
@@ -23,9 +25,22 @@ const ImageItem = ({
   item,
   isChecked,
   selectedIndex,
+  isMultiSelect,
   styles,
 }: Props) => {
   const [error, setError] = useState(false);
+
+  const selectCircleStyles = {
+    width: 25,
+    height: 25,
+    borderRadius: 15,
+
+    position: "absolute",
+    top: 5,
+    left: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  };
 
   return (
     <TouchableOpacity
@@ -39,23 +54,27 @@ const ImageItem = ({
         source={{ uri: item.uri }}
       />
       {isChecked ? (
-        <View
-          style={{
-            width: 25,
-            height: 25,
-            borderRadius: 15,
-            backgroundColor: "#FFD54F",
-            position: "absolute",
-            top: 5,
-            left: 5,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#2D3239", fontWeight: "700" }}>
-            {selectedIndex + 1}
-          </Text>
-        </View>
+        !isMultiSelect ? (
+          <View style={selectCircleStyles as never}>
+            <Image
+              source={require("./assets/check-on.png")}
+              style={{ width: 25, height: 25 }}
+            />
+          </View>
+        ) : (
+          <View
+            style={
+              {
+                ...selectCircleStyles,
+                backgroundColor: "#FFD54F",
+              } as never
+            }
+          >
+            <Text style={{ color: "#2D3239", fontWeight: "700" }}>
+              {selectedIndex + 1}
+            </Text>
+          </View>
+        )
       ) : (
         <View
           style={{

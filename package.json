@@ -1,8 +1,9 @@
 {
   "name": "react-native-cameraroll-image-picker",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
-    "build": "tsc"
+    "build": "rimraf dist && tsc && yarn copy-files",
+    "copy-files": "cpx ./src/assets/*  ./dist/assets/"
   },
   "dependencies": {
     "@react-native-community/cameraroll": "^4.1.2",

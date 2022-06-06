@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.68.2",
-    "react-native-cameraroll-image-picker": "^0.0.11"
+    "react-native-cameraroll-image-picker": "^0.0.12",
+    "react-native-permissions": "^3.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.17.12",

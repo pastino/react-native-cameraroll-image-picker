@@ -1,11 +1,12 @@
 # `react-native-cameraroll-image-picker`
 
-![Supports Android and iOS][supported-os-badge]
-![MIT License][license-badge]
-[![Lean Core Badge][lean-core-badge]][lean-core-issue]
+Image Picker with cameraroll
+
+<a href="https://pettraining.s3.ap-northeast-2.amazonaws.com/ezgif-1-458547bbf7.gif"><img src="https://pettraining.s3.ap-northeast-2.amazonaws.com/ezgif-1-458547bbf7.gif" width="350"></a>
 
 ## Getting started
 
+`$ npm install @react-native-community/cameraroll --save`
 `$ npm install react-native-cameraroll-image-picker --save && npx pod-install`
 
 ### Permissions

@@ -2,6 +2,8 @@
 
 Image Picker with cameraroll
 
+![Simulator-Screen-Recording-iPhone-13-2022-06-20-at-18 41 41](https://user-images.githubusercontent.com/47880048/174574457-6cd51de3-d3b5-45f1-8d4c-b3b82586401f.gif)
+
 <a href="https://pettraining.s3.ap-northeast-2.amazonaws.com/ezgif-1-458547bbf7.gif"><img src="https://pettraining.s3.ap-northeast-2.amazonaws.com/ezgif-1-458547bbf7.gif" width="350"></a>
 
 ## Getting started

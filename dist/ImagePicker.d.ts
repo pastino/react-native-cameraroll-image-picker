@@ -1,31 +1,30 @@
 /// <reference types="react" />
 import { GroupType, AssetType } from "@react-native-community/cameraroll";
-import * as T from "./types";
+import { PhotoState, AlbumState } from "./types";
 interface Props {
     ref?: any;
     initialNumToRender?: number;
     groupTypes?: GroupType;
     assetType?: AssetType;
-    initAlbum?: T.Album;
     maximum?: number;
     imagesPerRow?: number;
     imageMargin?: number;
     containerWidth?: number;
     backgroundColor?: string;
-    emptyText?: any;
-    emptyTextStyle?: any;
-    loader?: any;
+    emptyText?: string;
+    emptyTextStyle?: string;
+    loader?: JSX.Element;
     album?: string;
-    albums?: T.Album[];
+    albums?: AlbumState[];
     isMultiSelect?: boolean;
     onChangePhotosEvent?: (e: {
-        selected: T.Photo[];
-        item: T.Photo;
+        selected: PhotoState[];
+        item: PhotoState;
         index: number;
         isChecked: boolean;
     }) => void;
     onMaxSelectedEvent?: () => void;
-    getAlbumsData?: (albums: T.Album[]) => void;
+    getAlbumsData?: (albums: AlbumState[]) => void;
     onChangeAlbumEvent?: (album: string) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;

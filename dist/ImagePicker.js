@@ -45,15 +45,16 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
     const registRef = () => {
         if (ref)
             ref.current = {
-                getAlbum: handleAlbum.get(),
+                getAlbum: albumHandler.get(),
                 ...ref.current,
             };
     };
-    const handlePhoto = {
+    class Photo {
+        constructor() { }
         /**
          * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
          */
-        get: async function (isDuplicateBug = false) {
+        get = async (isDuplicateBug = false) => {
             const newPhotoData = await CameraRoll.getPhotos({
                 ...options,
                 first: isDuplicateBug ? 5000 : options?.first,
@@ -65,8 +66,8 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
             }
             this.set(newPhotos);
             this.setGalleryInfo(newPhotoData.page_info);
-        },
-        getMore: async function () {
+        };
+        getMore = async () => {
             if (!galleryInfo.has_next_page || !galleryInfo?.end_cursor)
                 return;
             const newPhotoData = await CameraRoll.getPhotos({
@@ -79,11 +80,11 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                 return;
             this.set([...photos, ...newPhotos]);
             this.setGalleryInfo(newPhotoData.page_info);
-        },
+        };
         /**
          * Check the bug where pagination is not working on a specific device
          */
-        bypassDuplicateImageBug: async function (newPhotos) {
+        bypassDuplicateImageBug = async (newPhotos) => {
             if (photos.length === 0)
                 return false;
             const uriArr = photos.map((item) => item.uri);
@@ -92,19 +93,19 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                 return false;
             await this.get(true);
             return true;
-        },
-        set: (photos) => {
+        };
+        set = (photos) => {
             setPhotos(photos);
-        },
-        setGalleryInfo: (pageInfo) => {
+        };
+        setGalleryInfo = (pageInfo) => {
             setGalleryInfo(pageInfo);
-        },
+        };
         /**
          * Returns Photo Array
          * @param newPhotoData Image bundle obtained by CameraRoll's getPhotos method [Array]
          * @returns Array{name, type, uri}
          */
-        makePhotoBudle: (newPhotoData) => {
+        makePhotoBudle = (newPhotoData) => {
             let newPhotos = [];
             for (let i = 0; i < newPhotoData.edges.length; i++) {
                 const edge = newPhotoData.edges[i];
@@ -116,9 +117,10 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                 newPhotos.push(newImageObj);
             }
             return newPhotos;
-        },
-    };
-    const handleAlbum = {
+        };
+    }
+    const photoHandler = new Photo();
+    const albumHandler = {
         get: async function () {
             const albumsData = await CameraRoll.getAlbums({
                 assetType: "Photos",
@@ -202,7 +204,7 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
         registRef();
     }, []);
     useEffect(() => {
-        handlePhoto.get();
+        photoHandler.get();
         onChangeAlbumEvent && onChangeAlbumEvent(album);
     }, [album]);
     const handleRenderItem = ({ item, index, }) => {
@@ -218,5 +220,5 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                 marginBottom: imageMargin,
             } }));
     };
-    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => handlePhoto.getMore(), onEndReachedThreshold: 0.8 }) }));
+    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));
 };

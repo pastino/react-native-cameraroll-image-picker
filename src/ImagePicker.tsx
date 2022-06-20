@@ -14,33 +14,31 @@ import CameraRoll, {
   Album,
 } from "@react-native-community/cameraroll";
 import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
-import * as T from "./types";
-
+import { PhotoState, AlbumState } from "./types";
 interface Props {
   ref?: any;
   initialNumToRender?: number;
   groupTypes?: GroupType;
   assetType?: AssetType;
-  initAlbum?: T.Album;
   maximum?: number;
   imagesPerRow?: number;
   imageMargin?: number;
   containerWidth?: number;
   backgroundColor?: string;
-  emptyText?: any;
-  emptyTextStyle?: any;
-  loader?: any;
+  emptyText?: string;
+  emptyTextStyle?: string;
+  loader?: JSX.Element;
   album?: string;
-  albums?: T.Album[];
+  albums?: AlbumState[];
   isMultiSelect?: boolean;
   onChangePhotosEvent?: (e: {
-    selected: T.Photo[];
-    item: T.Photo;
+    selected: PhotoState[];
+    item: PhotoState;
     index: number;
     isChecked: boolean;
   }) => void;
   onMaxSelectedEvent?: () => void;
-  getAlbumsData?: (albums: T.Album[]) => void;
+  getAlbumsData?: (albums: AlbumState[]) => void;
   onChangeAlbumEvent?: (album: string) => void;
 }
 
@@ -87,8 +85,8 @@ export const ImagePicker = ({
   const IMAGE_SIZE =
     containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
 
-  const [selected, setSelected] = useState<T.Photo[]>([]);
-  const [photos, setPhotos] = useState<T.Photo[]>([]);
+  const [selected, setSelected] = useState<PhotoState[]>([]);
+  const [photos, setPhotos] = useState<PhotoState[]>([]);
   const [galleryInfo, setGalleryInfo] = useState<
     PhotoIdentifiersPage["page_info"]
   >({
@@ -113,16 +111,17 @@ export const ImagePicker = ({
   const registRef = () => {
     if (ref)
       ref.current = {
-        getAlbum: handleAlbum.get(),
+        getAlbum: albumHandler.get(),
         ...ref.current,
       };
   };
 
-  const handlePhoto = {
+  class Photo {
+    constructor() {}
     /**
      * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
      */
-    get: async function (isDuplicateBug = false): Promise<void> {
+    get = async (isDuplicateBug = false): Promise<void> => {
       const newPhotoData: PhotoIdentifiersPage = await CameraRoll.getPhotos({
         ...options,
         first: isDuplicateBug ? 5000 : options?.first,
@@ -134,8 +133,9 @@ export const ImagePicker = ({
       }
       this.set(newPhotos);
       this.setGalleryInfo(newPhotoData.page_info);
-    },
-    getMore: async function (): Promise<void> {
+    };
+
+    getMore = async (): Promise<void> => {
       if (!galleryInfo.has_next_page || !galleryInfo?.end_cursor) return;
       const newPhotoData = await CameraRoll.getPhotos({
         after: galleryInfo.end_cursor,
@@ -146,31 +146,34 @@ export const ImagePicker = ({
       if (isDuplicate) return;
       this.set([...photos, ...newPhotos]);
       this.setGalleryInfo(newPhotoData.page_info);
-    },
+    };
+
     /**
      * Check the bug where pagination is not working on a specific device
      */
-    bypassDuplicateImageBug: async function (newPhotos: T.Photo[]) {
+    bypassDuplicateImageBug = async (newPhotos: PhotoState[]) => {
       if (photos.length === 0) return false;
       const uriArr = photos.map((item) => item.uri);
       const isDuplicate = uriArr.includes(newPhotos[0].uri);
       if (!isDuplicate) return false;
       await this.get(true);
       return true;
-    },
-    set: (photos: T.Photo[]): void => {
+    };
+
+    set = (photos: PhotoState[]): void => {
       setPhotos(photos);
-    },
-    setGalleryInfo: (pageInfo: PhotoIdentifiersPage["page_info"]): void => {
+    };
+
+    setGalleryInfo = (pageInfo: PhotoIdentifiersPage["page_info"]): void => {
       setGalleryInfo(pageInfo);
-    },
+    };
     /**
      * Returns Photo Array
      * @param newPhotoData Image bundle obtained by CameraRoll's getPhotos method [Array]
      * @returns Array{name, type, uri}
      */
-    makePhotoBudle: (newPhotoData: PhotoIdentifiersPage): T.Photo[] => {
-      let newPhotos: T.Photo[] = [];
+    makePhotoBudle = (newPhotoData: PhotoIdentifiersPage): PhotoState[] => {
+      let newPhotos: PhotoState[] = [];
       for (let i = 0; i < newPhotoData.edges.length; i++) {
         const edge = newPhotoData.edges[i];
         const newImageObj = {
@@ -181,10 +184,12 @@ export const ImagePicker = ({
         newPhotos.push(newImageObj);
       }
       return newPhotos;
-    },
-  };
+    };
+  }
 
-  const handleAlbum = {
+  const photoHandler = new Photo();
+
+  const albumHandler = {
     get: async function () {
       const albumsData = await CameraRoll.getAlbums({
         assetType: "Photos",
@@ -193,8 +198,8 @@ export const ImagePicker = ({
       getAlbumsData && getAlbumsData([...albums, ...newAlbums]);
     },
 
-    makeAlbumBudle: (albumsData: Album[]): T.Album[] => {
-      const newAlbums: T.Album[] = [];
+    makeAlbumBudle: (albumsData: Album[]): AlbumState[] => {
+      const newAlbums: AlbumState[] = [];
       for (let i = 0; i < albumsData.length; i++) {
         const newObj = { label: "", value: "", count: 0 };
         const d = albumsData[i];
@@ -212,12 +217,12 @@ export const ImagePicker = ({
     order,
     isChecked,
   }: {
-    photo: T.Photo;
+    photo: PhotoState;
     order: number;
     isChecked: boolean;
   }) => {
     if (isMultiSelect) {
-      const copiedPhotos: T.Photo[] = selected.slice();
+      const copiedPhotos: PhotoState[] = selected.slice();
       if (order === -1) {
         if (selected.length === MAX_SELECT_PHOTO_LENGTH) {
           onMaxSelectedEvent && onMaxSelectedEvent();
@@ -285,7 +290,7 @@ export const ImagePicker = ({
   }, []);
 
   useEffect(() => {
-    handlePhoto.get();
+    photoHandler.get();
     onChangeAlbumEvent && onChangeAlbumEvent(album);
   }, [album]);
 
@@ -293,7 +298,7 @@ export const ImagePicker = ({
     item,
     index,
   }: {
-    item: T.Photo;
+    item: PhotoState;
     index: number;
   }) => {
     const isMarginRight = (index + 1) % imagesPerRow !== 0;
@@ -329,7 +334,7 @@ export const ImagePicker = ({
         renderItem={handleRenderItem}
         keyExtractor={(item) => item.uri}
         numColumns={imagesPerRow}
-        onEndReached={() => handlePhoto.getMore()}
+        onEndReached={() => photoHandler.getMore()}
         onEndReachedThreshold={0.8}
       />
     </View>

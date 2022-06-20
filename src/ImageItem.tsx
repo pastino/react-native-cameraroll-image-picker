@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import * as T from "./types";
+import { PhotoState } from "./types";
 
 interface Props {
   handleSelect: () => void;
-  item: T.Photo;
+  item: PhotoState;
   isChecked: boolean;
   selectedIndex: number;
   isMultiSelect: boolean;

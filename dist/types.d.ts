@@ -1,9 +1,9 @@
-export interface Photo {
+export interface PhotoState {
     name: string;
     type: string;
     uri: string;
 }
-export interface Album {
+export interface AlbumState {
     label: string;
     value: string;
     count: number;

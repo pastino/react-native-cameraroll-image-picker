@@ -1,10 +1,11 @@
 /// <reference types="react" />
-import * as T from "./types";
+import { PhotoState } from "./types";
 interface Props {
     handleSelect: () => void;
-    item: T.Photo;
+    item: PhotoState;
     isChecked: boolean;
     selectedIndex: number;
+    isMultiSelect: boolean;
     styles?: {};
 }
 /**
@@ -13,7 +14,8 @@ interface Props {
  * @param item photo item
  * @param isChecked
  * @param selectedIndex selected image order
+ * @param isMultiSelect
  * @param styles photo styles
  */
-declare const ImageItem: ({ handleSelect, item, isChecked, selectedIndex, styles, }: Props) => JSX.Element;
+declare const ImageItem: ({ handleSelect, item, isChecked, selectedIndex, isMultiSelect, styles, }: Props) => JSX.Element;
 export default ImageItem;

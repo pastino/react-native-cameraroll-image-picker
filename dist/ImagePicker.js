@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Dimensions, FlatList, PermissionsAndroid, Platform, View, } from "react-native";
 import ImageItem from "./ImageItem";
 import CameraRoll from "@react-native-community/cameraroll";
+import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
 export const getAlbums = async () => {
     const albumsData = await CameraRoll.getAlbums({
         assetType: "Photos",
@@ -19,17 +20,17 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", assetType = "Photos", initAlbum = { label: "All", value: "All", count: 0 }, selected, maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onImagePress, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, albums, emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], isMultiSelect = false, emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
-    const [currentAlbum, setCurrentAlbum] = useState(initAlbum);
+    const [selected, setSelected] = useState([]);
     const [photos, setPhotos] = useState([]);
     const [galleryInfo, setGalleryInfo] = useState({
         end_cursor: "",
         has_next_page: false,
     });
-    const options = currentAlbum?.label === "All"
+    const options = album === "All"
         ? {
             first: PHOTO_LENGTH,
             assetType,
@@ -38,23 +39,35 @@ const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", asset
         : {
             first: PHOTO_LENGTH,
             assetType,
-            groupName: currentAlbum?.label,
+            groupName: album,
             groupTypes,
         };
-    const handlePhoto = {
+    const registRef = () => {
+        if (ref)
+            ref.current = {
+                getAlbum: albumHandler.get(),
+                ...ref.current,
+            };
+    };
+    class Photo {
+        constructor() { }
         /**
          * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
          */
-        get: async function (isDuplicateBug = false) {
+        get = async (isDuplicateBug = false) => {
             const newPhotoData = await CameraRoll.getPhotos({
                 ...options,
                 first: isDuplicateBug ? 5000 : options?.first,
             });
             const newPhotos = this.makePhotoBudle(newPhotoData);
+            if (newPhotos.length === 0) {
+                console.warn("image length 0");
+                return;
+            }
             this.set(newPhotos);
             this.setGalleryInfo(newPhotoData.page_info);
-        },
-        getMore: async function () {
+        };
+        getMore = async () => {
             if (!galleryInfo.has_next_page || !galleryInfo?.end_cursor)
                 return;
             const newPhotoData = await CameraRoll.getPhotos({
@@ -67,11 +80,11 @@ const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", asset
                 return;
             this.set([...photos, ...newPhotos]);
             this.setGalleryInfo(newPhotoData.page_info);
-        },
+        };
         /**
          * Check the bug where pagination is not working on a specific device
          */
-        bypassDuplicateImageBug: async function (newPhotos) {
+        bypassDuplicateImageBug = async (newPhotos) => {
             if (photos.length === 0)
                 return false;
             const uriArr = photos.map((item) => item.uri);
@@ -80,19 +93,19 @@ const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", asset
                 return false;
             await this.get(true);
             return true;
-        },
-        set: (photos) => {
+        };
+        set = (photos) => {
             setPhotos(photos);
-        },
-        setGalleryInfo: (pageInfo) => {
+        };
+        setGalleryInfo = (pageInfo) => {
             setGalleryInfo(pageInfo);
-        },
+        };
         /**
          * Returns Photo Array
          * @param newPhotoData Image bundle obtained by CameraRoll's getPhotos method [Array]
          * @returns Array{name, type, uri}
          */
-        makePhotoBudle: (newPhotoData) => {
+        makePhotoBudle = (newPhotoData) => {
             let newPhotos = [];
             for (let i = 0; i < newPhotoData.edges.length; i++) {
                 const edge = newPhotoData.edges[i];
@@ -104,18 +117,16 @@ const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", asset
                 newPhotos.push(newImageObj);
             }
             return newPhotos;
-        },
-    };
-    const handleAlbum = {
+        };
+    }
+    const photoHandler = new Photo();
+    const albumHandler = {
         get: async function () {
             const albumsData = await CameraRoll.getAlbums({
                 assetType: "Photos",
             });
             const newAlbums = await this.makeAlbumBudle(albumsData);
             getAlbumsData && getAlbumsData([...albums, ...newAlbums]);
-        },
-        setCurrentAlbum: (album) => {
-            setCurrentAlbum(album);
         },
         makeAlbumBudle: (albumsData) => {
             const newAlbums = [];
@@ -131,54 +142,83 @@ const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "Album", asset
         },
     };
     const handleSelect = ({ photo, order, isChecked, }) => {
-        if (selected?.length === MAX_SELECT_PHOTO_LENGTH) {
-            onMaxSelectedEvent && onMaxSelectedEvent();
+        if (isMultiSelect) {
+            const copiedPhotos = selected.slice();
+            if (order === -1) {
+                if (selected.length === MAX_SELECT_PHOTO_LENGTH) {
+                    onMaxSelectedEvent && onMaxSelectedEvent();
+                }
+                else {
+                    copiedPhotos.push(photo);
+                }
+            }
+            else {
+                copiedPhotos.splice(order, 1);
+            }
+            setSelected(copiedPhotos);
+            onChangePhotosEvent &&
+                onChangePhotosEvent({
+                    selected: copiedPhotos,
+                    item: photo,
+                    index: order,
+                    isChecked: isChecked,
+                });
             return;
         }
-        onImagePress && onImagePress(photo, order, isChecked);
+        setSelected([photo]);
+        onChangePhotosEvent &&
+            onChangePhotosEvent({
+                selected: [photo],
+                item: photo,
+                index: order,
+                isChecked: isChecked,
+            });
     };
-    const checkReadStoragePermission = async () => {
+    const checkAndroidReadStoragePermission = async () => {
         const isGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
         if (!isGranted)
             console.warn("no atuthentification 'READ_EXTERNAL_STORAGE'");
     };
-    const checkWriteStoragePermission = async () => {
+    const checkAndroidWriteStoragePermission = async () => {
         const isGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
         if (!isGranted)
             console.warn("no atuthentification 'WRITE_EXTERNAL_STORAGE'");
     };
-    const registRef = () => {
-        if (ref)
-            ref.current = {
-                getAlbum: handleAlbum.get(),
-                ...ref.current,
-            };
+    const checkIOSLibraryPermission = async () => {
+        const { GRANTED } = RESULTS;
+        const result = await check(PERMISSIONS.IOS.PHOTO_LIBRARY);
+        if (result !== GRANTED)
+            console.warn("no atuthentification 'PHOTO_LIBRARY'");
+    };
+    const checkPhotoLibraryPermission = async () => {
+        if (Platform.OS === "android") {
+            checkAndroidReadStoragePermission();
+            checkAndroidWriteStoragePermission();
+        }
+        else {
+            checkIOSLibraryPermission();
+        }
     };
     useEffect(() => {
-        if (Platform.OS === "android") {
-            checkReadStoragePermission();
-            checkWriteStoragePermission();
-        }
-        handleAlbum.get();
+        checkPhotoLibraryPermission();
         registRef();
     }, []);
     useEffect(() => {
-        handlePhoto.get();
-        onChangeAlbumEvent && onChangeAlbumEvent(currentAlbum);
-    }, [currentAlbum]);
+        photoHandler.get();
+        onChangeAlbumEvent && onChangeAlbumEvent(album);
+    }, [album]);
     const handleRenderItem = ({ item, index, }) => {
-        const selectedIndex = selected?.findIndex((photo) => photo.uri === item.uri);
-        const isChecked = selected
-            ?.map((photo) => photo.uri)
-            .includes(item.uri);
         const isMarginRight = (index + 1) % imagesPerRow !== 0;
-        return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => handleSelect({ photo: item, order: selectedIndex, isChecked }), styles: {
+        const selectedIndex = selected.findIndex((photo) => photo.uri === item.uri);
+        let isChecked = false;
+        if (selectedIndex !== -1)
+            isChecked = true;
+        return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => handleSelect({ photo: item, order: selectedIndex, isChecked }), isMultiSelect: isMultiSelect, styles: {
                 width: IMAGE_SIZE,
                 height: IMAGE_SIZE,
                 marginRight: isMarginRight ? imageMargin : 0,
                 marginBottom: imageMargin,
             } }));
     };
-    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => handlePhoto.getMore(), onEndReachedThreshold: 0.8 }) }));
+    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));
 };
-export default ImagePicker;

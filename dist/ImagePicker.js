@@ -113,6 +113,8 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                     name: `image${i}.jpg`,
                     type: "image/jpeg",
                     uri: edge.node.image.uri,
+                    location: edge.node.location,
+                    timestamp: edge.node.timestamp,
                 };
                 newPhotos.push(newImageObj);
             }

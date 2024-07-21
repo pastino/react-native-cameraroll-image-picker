@@ -15,6 +15,7 @@ import CameraRoll, {
 } from "@react-native-community/cameraroll";
 import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
 import { PhotoState, AlbumState } from "./types";
+
 interface Props {
   ref?: any;
   initialNumToRender?: number;
@@ -180,6 +181,8 @@ export const ImagePicker = ({
           name: `image${i}.jpg`,
           type: "image/jpeg",
           uri: edge.node.image.uri,
+          location: edge.node.location,
+          timestamp: edge.node.timestamp,
         };
         newPhotos.push(newImageObj);
       }

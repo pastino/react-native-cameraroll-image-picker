@@ -17,6 +17,7 @@ interface Props {
     album?: string;
     albums?: AlbumState[];
     isMultiSelect?: boolean;
+    isOnlySelectToday?: boolean;
     onChangePhotosEvent?: (e: {
         selected: PhotoState[];
         item: PhotoState;
@@ -28,5 +29,5 @@ interface Props {
     onChangeAlbumEvent?: (album: string) => void;
 }
 export declare const getAlbums: () => Promise<any[]>;
-export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, isMultiSelect, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
+export declare const ImagePicker: ({ ref, initialNumToRender, groupTypes, assetType, maximum, imagesPerRow, imageMargin, containerWidth, backgroundColor, onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album, albums, isMultiSelect, isOnlySelectToday, emptyText, emptyTextStyle, loader, }: Props) => JSX.Element;
 export {};

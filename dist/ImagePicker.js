@@ -20,7 +20,7 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], isMultiSelect = false, emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], isMultiSelect = false, isOnlySelectToday = false, emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
@@ -215,11 +215,19 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
         let isChecked = false;
         if (selectedIndex !== -1)
             isChecked = true;
-        return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => handleSelect({ photo: item, order: selectedIndex, isChecked }), isMultiSelect: isMultiSelect, styles: {
+        const isToday = new Date(item.timestamp * 1000).toDateString() ===
+            new Date().toDateString();
+        const shouldDim = isOnlySelectToday && !isToday;
+        return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => {
+                if (shouldDim)
+                    return;
+                handleSelect({ photo: item, order: selectedIndex, isChecked });
+            }, isMultiSelect: isMultiSelect, styles: {
                 width: IMAGE_SIZE,
                 height: IMAGE_SIZE,
                 marginRight: isMarginRight ? imageMargin : 0,
                 marginBottom: imageMargin,
+                opacity: shouldDim ? 0.5 : 1,
             } }));
     };
     return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));

@@ -32,6 +32,7 @@ interface Props {
   album?: string;
   albums?: AlbumState[];
   isMultiSelect?: boolean;
+  isOnlySelectToday?: boolean;
   onChangePhotosEvent?: (e: {
     selected: PhotoState[];
     item: PhotoState;
@@ -77,6 +78,7 @@ export const ImagePicker = ({
   album = "All",
   albums = [],
   isMultiSelect = false,
+  isOnlySelectToday = false,
   emptyText,
   emptyTextStyle,
   loader,
@@ -305,25 +307,31 @@ export const ImagePicker = ({
     index: number;
   }) => {
     const isMarginRight = (index + 1) % imagesPerRow !== 0;
-
     const selectedIndex = selected.findIndex((photo) => photo.uri === item.uri);
     let isChecked = false;
     if (selectedIndex !== -1) isChecked = true;
+
+    const isToday =
+      new Date(item.timestamp * 1000).toDateString() ===
+      new Date().toDateString();
+    const shouldDim = isOnlySelectToday && !isToday;
 
     return (
       <ImageItem
         item={item}
         isChecked={isChecked}
         selectedIndex={selectedIndex}
-        handleSelect={() =>
-          handleSelect({ photo: item, order: selectedIndex, isChecked })
-        }
+        handleSelect={() => {
+          if (shouldDim) return;
+          handleSelect({ photo: item, order: selectedIndex, isChecked });
+        }}
         isMultiSelect={isMultiSelect}
         styles={{
           width: IMAGE_SIZE,
           height: IMAGE_SIZE,
           marginRight: isMarginRight ? imageMargin : 0,
           marginBottom: imageMargin,
+          opacity: shouldDim ? 0.5 : 1,
         }}
       />
     );

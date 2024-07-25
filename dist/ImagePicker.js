@@ -1,6 +1,6 @@
-import { jsx as _jsx } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
-import { Dimensions, FlatList, PermissionsAndroid, Platform, View, } from "react-native";
+import { Dimensions, FlatList, PermissionsAndroid, Platform, Text, View, } from "react-native";
 import ImageItem from "./ImageItem";
 import CameraRoll from "@react-native-community/cameraroll";
 import { check, PERMISSIONS, RESULTS } from "react-native-permissions";
@@ -218,17 +218,35 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
         const isToday = new Date(item.timestamp * 1000).toDateString() ===
             new Date().toDateString();
         const shouldDim = isOnlySelectToday && !isToday;
-        return (_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => {
-                if (shouldDim)
-                    return;
-                handleSelect({ photo: item, order: selectedIndex, isChecked });
-            }, isMultiSelect: isMultiSelect, styles: {
+        const formattedDate = new Date(item.timestamp * 1000)
+            .toISOString()
+            .slice(0, 10)
+            .replace(/-/g, ".");
+        return (_jsxs(View, { style: {
+                position: "relative",
                 width: IMAGE_SIZE,
                 height: IMAGE_SIZE,
                 marginRight: isMarginRight ? imageMargin : 0,
                 marginBottom: imageMargin,
-                opacity: shouldDim ? 0.5 : 1,
-            } }));
+            }, children: [_jsx(ImageItem, { item: item, isChecked: isChecked, selectedIndex: selectedIndex, handleSelect: () => handleSelect({ photo: item, order: selectedIndex, isChecked }), isMultiSelect: isMultiSelect, styles: {
+                        width: IMAGE_SIZE,
+                        height: IMAGE_SIZE,
+                    } }), shouldDim && (_jsx(View, { style: {
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "black",
+                        opacity: 0.5,
+                    }, children: _jsx(View, { style: {
+                            position: "absolute",
+                            bottom: 5,
+                            right: 5,
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            padding: 2,
+                            borderRadius: 3,
+                        }, children: _jsx(Text, { style: { color: "white", fontSize: 10 }, children: formattedDate }) }) }))] }));
     };
     return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));
 };

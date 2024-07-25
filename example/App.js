@@ -50,6 +50,7 @@ const ImagePickerView = () => {
             maximum={10}
             onChangePhotosEvent={e => setSelected(e?.selected)}
             isMultiSelect={true}
+            isOnlySelectToday={true}
           />
         </ScrollView>
       </View>

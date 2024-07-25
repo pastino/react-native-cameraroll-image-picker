@@ -5416,10 +5416,10 @@ react-native-cameraroll-image-picker@^0.0.9:
   dependencies:
     "@react-native-community/cameraroll" "^4.1.2"
 
-react-native-cameraroll-image-picker@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/react-native-cameraroll-image-picker/-/react-native-cameraroll-image-picker-1.0.5.tgz#ba10a142887bc74025f6061f1ec30c6ff688bde9"
-  integrity sha512-d6wC13ZgRIxhDSnlsr/IOssXfrgxtfU+1npCs9PnLisw7uvNn9Z2pljb2kYaEuHQi0BgYGDu0DdEGXK8OcIXcQ==
+react-native-cameraroll-image-picker@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-cameraroll-image-picker/-/react-native-cameraroll-image-picker-1.0.6.tgz#999b29611f2e11a4e7e29c1da9879c2697177f4e"
+  integrity sha512-EztVP20QXDqRbIp8G3kPlshMycewkMKwRGVe82k2l6ATMbe/syNgA6FYBnOfUBzxpgptkuaLZFNfjz/szlvoPQ==
   dependencies:
     "@react-native-community/cameraroll" "^4.1.2"
     fbjs "^3.0.4"

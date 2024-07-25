@@ -4,6 +4,7 @@ import {
   FlatList,
   PermissionsAndroid,
   Platform,
+  Text,
   View,
 } from "react-native";
 import ImageItem from "./ImageItem";
@@ -315,25 +316,63 @@ export const ImagePicker = ({
       new Date(item.timestamp * 1000).toDateString() ===
       new Date().toDateString();
     const shouldDim = isOnlySelectToday && !isToday;
+    const formattedDate = new Date(item.timestamp * 1000)
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, ".");
 
     return (
-      <ImageItem
-        item={item}
-        isChecked={isChecked}
-        selectedIndex={selectedIndex}
-        handleSelect={() => {
-          if (shouldDim) return;
-          handleSelect({ photo: item, order: selectedIndex, isChecked });
-        }}
-        isMultiSelect={isMultiSelect}
-        styles={{
+      <View
+        style={{
+          position: "relative",
           width: IMAGE_SIZE,
           height: IMAGE_SIZE,
           marginRight: isMarginRight ? imageMargin : 0,
           marginBottom: imageMargin,
-          opacity: shouldDim ? 0.5 : 1,
         }}
-      />
+      >
+        <ImageItem
+          item={item}
+          isChecked={isChecked}
+          selectedIndex={selectedIndex}
+          handleSelect={() =>
+            handleSelect({ photo: item, order: selectedIndex, isChecked })
+          }
+          isMultiSelect={isMultiSelect}
+          styles={{
+            width: IMAGE_SIZE,
+            height: IMAGE_SIZE,
+          }}
+        />
+        {shouldDim && (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "black",
+              opacity: 0.5,
+            }}
+          >
+            <View
+              style={{
+                position: "absolute",
+                bottom: 5,
+                right: 5,
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                padding: 2,
+                borderRadius: 3,
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 10 }}>
+                {formattedDate}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
     );
   };
 

@@ -1,6 +1,6 @@
 {
   "name": "react-native-cameraroll-image-picker",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "scripts": {
     "build": "rimraf dist && tsc && yarn copy-files",
     "copy-files": "cpx ./src/assets/*  ./dist/assets/"
@@ -28,6 +28,7 @@
     "react-test-renderer": "17.0.2",
     "typescript": "^4.6.3"
   },
+  "packageManager": "yarn@1.22.5",
   "jest": {
     "preset": "react-native"
   },

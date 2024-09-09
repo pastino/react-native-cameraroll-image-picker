@@ -20,7 +20,7 @@ export const getAlbums = async () => {
     return [{ label: "All", value: "All" }, ...newAlbums];
 };
 const { width } = Dimensions.get("screen");
-export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], isMultiSelect = false, isOnlySelectToday = false, emptyText, emptyTextStyle, loader, }) => {
+export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", assetType = "Photos", maximum = 15, imagesPerRow = 3, imageMargin = 1, containerWidth = width, backgroundColor = "white", onChangePhotosEvent, onMaxSelectedEvent, getAlbumsData, onChangeAlbumEvent, album = "All", albums = [], isMultiSelect = false, isOnlySelectToday = false, photoHeaderComponent, emptyComponent, emptyText, emptyTextStyle, loader, }) => {
     const PHOTO_LENGTH = initialNumToRender;
     const MAX_SELECT_PHOTO_LENGTH = maximum;
     const IMAGE_SIZE = containerWidth / imagesPerRow - (imageMargin - imageMargin / imagesPerRow);
@@ -55,9 +55,11 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
          * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
          */
         get = async (isDuplicateBug = false) => {
+            const date = new Date().setHours(0, 0, 0, 0);
             const newPhotoData = await CameraRoll.getPhotos({
                 ...options,
                 first: isDuplicateBug ? 5000 : options?.first,
+                fromTime: isOnlySelectToday ? date : undefined,
             });
             const newPhotos = this.makePhotoBudle(newPhotoData);
             if (newPhotos.length === 0) {
@@ -248,5 +250,8 @@ export const ImagePicker = ({ ref, initialNumToRender = 50, groupTypes = "All", 
                             borderRadius: 3,
                         }, children: _jsx(Text, { style: { color: "white", fontSize: 10 }, children: formattedDate }) }) }))] }));
     };
-    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: { width: containerWidth }, data: photos, renderItem: handleRenderItem, keyExtractor: (item) => item.uri, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));
+    return (_jsx(View, { style: { backgroundColor }, children: _jsx(FlatList, { style: {
+                width: containerWidth,
+                backgroundColor: isOnlySelectToday ? "black" : "white",
+            }, data: photos, renderItem: handleRenderItem, ListHeaderComponent: isOnlySelectToday ? photoHeaderComponent : null, keyExtractor: (item) => item.uri, ListEmptyComponent: emptyComponent, numColumns: imagesPerRow, onEndReached: () => photoHandler.getMore(), onEndReachedThreshold: 0.8 }) }));
 };

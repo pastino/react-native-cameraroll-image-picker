@@ -34,6 +34,8 @@ interface Props {
   albums?: AlbumState[];
   isMultiSelect?: boolean;
   isOnlySelectToday?: boolean;
+  photoHeaderComponent?: JSX.Element;
+  emptyComponent?: JSX.Element;
   onChangePhotosEvent?: (e: {
     selected: PhotoState[];
     item: PhotoState;
@@ -80,6 +82,8 @@ export const ImagePicker = ({
   albums = [],
   isMultiSelect = false,
   isOnlySelectToday = false,
+  photoHeaderComponent,
+  emptyComponent,
   emptyText,
   emptyTextStyle,
   loader,
@@ -126,9 +130,11 @@ export const ImagePicker = ({
      * @param isDuplicateBug There is a bug that pagination cannot be done on certain devices. If there is a bug, images are received in bulk.
      */
     get = async (isDuplicateBug = false): Promise<void> => {
+      const date = new Date().setHours(0, 0, 0, 0);
       const newPhotoData: PhotoIdentifiersPage = await CameraRoll.getPhotos({
         ...options,
         first: isDuplicateBug ? 5000 : options?.first,
+        fromTime: isOnlySelectToday ? date : undefined,
       });
       const newPhotos = this.makePhotoBudle(newPhotoData);
       if (newPhotos.length === 0) {
@@ -379,10 +385,15 @@ export const ImagePicker = ({
   return (
     <View style={{ backgroundColor }}>
       <FlatList
-        style={{ width: containerWidth }}
+        style={{
+          width: containerWidth,
+          backgroundColor: isOnlySelectToday ? "black" : "white",
+        }}
         data={photos}
         renderItem={handleRenderItem}
+        ListHeaderComponent={isOnlySelectToday ? photoHeaderComponent : null}
         keyExtractor={(item) => item.uri}
+        ListEmptyComponent={emptyComponent}
         numColumns={imagesPerRow}
         onEndReached={() => photoHandler.getMore()}
         onEndReachedThreshold={0.8}
